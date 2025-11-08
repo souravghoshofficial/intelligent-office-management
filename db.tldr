@@ -36,9 +36,9 @@
 		{
 			"id": "pointer:pointer",
 			"typeName": "pointer",
-			"x": 518.8173373584989,
-			"y": 370.7828125347851,
-			"lastActivityTimestamp": 1762323437213,
+			"x": 109.5328537065185,
+			"y": 1434.0269713290963,
+			"lastActivityTimestamp": 1762531149137,
 			"meta": {}
 		},
 		{
@@ -350,9 +350,9 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 296.3168354092164,
-			"y": -25.77972647937722,
-			"z": 0.776804645616877,
+			"x": 647.2022224584641,
+			"y": -902.7498365775748,
+			"z": 0.7167634242129527,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
@@ -367,7 +367,7 @@
 			"id": "shape:KTY9dYy8TKdRTjvY-nSjQ",
 			"type": "geo",
 			"props": {
-				"w": 355.23400655668615,
+				"w": 411.5985238427405,
 				"h": 263.72054582810483,
 				"geo": "rectangle",
 				"dash": "solid",
@@ -747,12 +747,12 @@
 			"typeName": "shape"
 		},
 		{
-			"editingShapeId": "shape:rlZw2nYT9XlUeTqd_5rNA",
+			"editingShapeId": null,
 			"croppingShapeId": null,
 			"selectedShapeIds": [
-				"shape:rlZw2nYT9XlUeTqd_5rNA"
+				"shape:KTY9dYy8TKdRTjvY-nSjQ"
 			],
-			"hoveredShapeId": "shape:rlZw2nYT9XlUeTqd_5rNA",
+			"hoveredShapeId": "shape:KTY9dYy8TKdRTjvY-nSjQ",
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
@@ -1075,8 +1075,8 @@
 			"typeName": "shape"
 		},
 		{
-			"x": -274.81873158797,
-			"y": 1189.9174121079125,
+			"x": -287.6542249965984,
+			"y": 1191.7238507468333,
 			"rotation": 0,
 			"isLocked": false,
 			"opacity": 1,
@@ -1086,11 +1086,11 @@
 			"props": {
 				"color": "black",
 				"size": "m",
-				"w": 294,
+				"w": 368.82897045729135,
 				"font": "draw",
 				"textAlign": "start",
 				"autoSize": true,
-				"scale": 0.8708803379607232,
+				"scale": 0.7054370683715431,
 				"richText": {
 					"type": "doc",
 					"content": [
@@ -1102,7 +1102,7 @@
 							"content": [
 								{
 									"type": "text",
-									"text": "employeeId: String"
+									"text": "id: String, PK"
 								}
 							]
 						},
@@ -1114,7 +1114,7 @@
 							"content": [
 								{
 									"type": "text",
-									"text": "startDate: date"
+									"text": "employee_id: String, FK "
 								}
 							]
 						},
@@ -1126,7 +1126,7 @@
 							"content": [
 								{
 									"type": "text",
-									"text": "duration(days): Number"
+									"text": "leave_type: String"
 								}
 							]
 						},
@@ -1138,9 +1138,51 @@
 							"content": [
 								{
 									"type": "text",
-									"text": "leaveAvailable: "
+									"text": "reason/description: String"
 								}
 							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "start_date: date"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "end_date: date"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "status: [\"pending\", \"approved\", \"rejected\"]"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							}
 						}
 					]
 				}
@@ -1652,7 +1694,7 @@
 			"brush": null,
 			"scribbles": [],
 			"cursor": {
-				"type": "default",
+				"type": "nwse-resize",
 				"rotation": 0
 			},
 			"isFocusMode": false,
