@@ -1,4 +1,5 @@
 import { app } from "./app.js";
+import { verifyToken } from "./middlewares/authMiddleware.js";
 
 const port = process.env.PORT || 3000;
 
@@ -8,14 +9,18 @@ app.listen(port, () => {
 
 
 app.get("/" , (req, res) => {
-    res.send("Hello from Intelligent Office Management backend");
+    res.json({
+        message: "Server is running..."
+    })
 })
 
 
 import adminRouter from "./routes/adminRoute.js"
 import authRoute from "./routes/auth.js"
+import employeeRouter from "./routes/employee.js"
 
-app.use("/api/admin", adminRouter);
 app.use("/api/auth", authRoute);
+app.use("/api/admin", verifyToken, adminRouter);
+app.use("/api/employee" , verifyToken, employeeRouter);
 
 
