@@ -124,3 +124,49 @@ export const createEmployee = async (req, res) => {
 
 
 
+export const getAllLeaves = async (req, res) => {
+  try {
+
+    // Pagination parameters (default page 1, 10 per page)
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = (page - 1) * limit;
+
+    // Fetch paginated results
+    const leaves = await sql`
+      SELECT 
+        l.id,
+        l.leave_type,
+        l.description,
+        l.start_date,
+        l.end_date,
+        l.status,
+        l.created_at,
+        e.name AS employee_name,
+        e.email AS employee_email,
+        e.id AS employee_id
+      FROM leaves l
+      JOIN employees e ON l.employee_id = e.id
+      ORDER BY l.created_at DESC
+      LIMIT ${limit} OFFSET ${offset};
+    `;
+
+    // Get total count for pagination info
+    const totalResult = await sql`SELECT COUNT(*) FROM leaves;`;
+    const total = parseInt(totalResult[0].count, 10);
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
+      currentPage: page,
+      totalPages,
+      totalRecords: total,
+      leaves,
+    });
+  } catch (err) {
+    console.error("Error fetching all leaves:", err);
+    return res.status(500).json({ error: "Failed to fetch leave records." });
+  }
+};
+
+
+
