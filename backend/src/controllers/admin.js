@@ -169,4 +169,98 @@ export const getAllLeaves = async (req, res) => {
 };
 
 
+export const approveLeave = async (req, res) => {
+  try {
+    const { leave_id } = req.params; 
+
+    // Validate input
+    if (!leave_id || leave_id.trim() === "") {
+      return res.status(400).json({ error: "Leave ID is required." });
+    }
+
+    // Fetch the leave record
+    const existingLeave = await sql`
+      SELECT * FROM leaves WHERE id = ${leave_id};
+    `;
+
+    if (existingLeave.length === 0) {
+      return res.status(404).json({ error: "Leave request not found." });
+    }
+
+    const leave = existingLeave[0];
+    if (leave.status === "approved") {
+      return res.status(400).json({ error: "Leave is already approved." });
+    }
+    if (leave.status === "rejected") {
+      return res.status(400).json({ error: "Cannot approve a rejected leave." });
+    }
+
+    // Update the leave status
+    const result = await sql`
+      UPDATE leaves
+      SET status = 'approved', updated_at = NOW()
+      WHERE id = ${leave_id}
+      RETURNING id, employee_id, leave_type, start_date, end_date, status, updated_at;
+    `;
+
+    // Return success response
+    return res.status(200).json({
+      message: "Leave request approved successfully.",
+      leave: result[0],
+    });
+  } catch (err) {
+    console.error("Error approving leave:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+export const rejectLeave = async (req, res) => {
+  try {
+    const { leave_id } = req.params; 
+
+    // Validate input
+    if (!leave_id || leave_id.trim() === "") {
+      return res.status(400).json({ error: "Leave ID is required." });
+    }
+
+    // Check if leave exists
+    const existingLeave = await sql`
+      SELECT * FROM leaves WHERE id = ${leave_id};
+    `;
+
+    if (existingLeave.length === 0) {
+      return res.status(404).json({ error: "Leave request not found." });
+    }
+
+    const leave = existingLeave[0];
+    if (leave.status === "rejected") {
+      return res.status(400).json({ error: "Leave is already rejected." });
+    }
+    if (leave.status === "approved") {
+      return res.status(400).json({ error: "Cannot reject an already approved leave." });
+    }
+
+    // Update the leave status
+    const result = await sql`
+      UPDATE leaves
+      SET status = 'rejected', updated_at = NOW()
+      WHERE id = ${leave_id}
+      RETURNING id, employee_id, leave_type, start_date, end_date, status, updated_at;
+    `;
+
+    // Return success response
+    return res.status(200).json({
+      message: "Leave request rejected successfully.",
+      leave: result[0],
+    });
+  } catch (err) {
+    console.error("Error rejecting leave:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+
 
