@@ -1,11 +1,12 @@
+import axios from "axios";
 import React, { useState } from "react";
 
 function ApplyLeave() {
   const [form, setForm] = useState({
-    startDate: "",
-    duration: "",
-    reason: "",
-    application: "",
+    start_date: "",
+    end_date: "",
+    leave_type: "",
+    description: "",
   });
 
   const handleChange = (e) => {
@@ -13,9 +14,8 @@ function ApplyLeave() {
     setForm({ ...form, [id]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    alert("Leave Application Submitted Successfully!");
   };
 
   return (
@@ -26,19 +26,18 @@ function ApplyLeave() {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
-          {/* Leave Dates & Duration */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col">
               <label
-                htmlFor="startDate"
+                htmlFor="start_date"
                 className="font-semibold text-gray-700 mb-1"
               >
                 Leave Start Date
               </label>
               <input
                 type="date"
-                id="startDate"
-                value={form.startDate}
+                id="start_date"
+                value={form.start_date}
                 onChange={handleChange}
                 className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
                 required
@@ -47,55 +46,51 @@ function ApplyLeave() {
 
             <div className="flex flex-col">
               <label
-                htmlFor="duration"
+                htmlFor="end_date"
                 className="font-semibold text-gray-700 mb-1"
               >
-                Duration (in days)
+                Leave End Date
               </label>
               <input
-                type="number"
-                id="duration"
-                value={form.duration}
+                type="date"
+                id="end_date"
+                value={form.end_date}
                 onChange={handleChange}
-                onWheel={(e) => e.target.blur()}
-                placeholder="Enter Duration"
-                min="1"
+                min={form.start_date}
                 className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
                 required
               />
             </div>
           </div>
 
-          {/* Reason */}
           <div className="flex flex-col">
             <label
-              htmlFor="reason"
+              htmlFor="leave_type"
               className="font-semibold text-gray-700 mb-1"
             >
-              Reason for Leave
+              Type of Leave
             </label>
             <input
               type="text"
-              id="reason"
-              value={form.reason}
+              id="leave_type"
+              value={form.leave_type}
               onChange={handleChange}
-              placeholder="Enter reason for leave"
+              placeholder="Enter type of leave (e.g. Sick Leave, Casual Leave)"
               className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               required
             />
           </div>
 
-          {/* Application Text */}
           <div className="flex flex-col">
             <label
-              htmlFor="application"
+              htmlFor="description"
               className="font-semibold text-gray-700 mb-1"
             >
               Application Letter
             </label>
             <textarea
-              id="application"
-              value={form.application}
+              id="description"
+              value={form.description}
               onChange={handleChange}
               placeholder="Write your leave application here..."
               rows="5"
@@ -104,7 +99,6 @@ function ApplyLeave() {
             ></textarea>
           </div>
 
-          {/* Submit Button */}
           <div className="flex justify-center">
             <button
               type="submit"
