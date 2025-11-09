@@ -23,6 +23,9 @@ export const login = async (req, res) => {
 
     const user = result[0];
 
+    const department_name = await sql`SELECT department_name FROM departments WHERE id = ${user.department_id}`
+    const department = department_name[0];
+
     // 3. Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -51,7 +54,11 @@ export const login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        phone: user?.phone || "",
+        position: user.position,
+        department,
         role: user.role,
+        status: user.status
       },
     });
   } catch (err) {
@@ -69,4 +76,53 @@ export const logout = (req, res) => {
   });
   return res.status(200).json({ message: "Logged out successfully" });
 };
+
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized access." });
+    }
+
+    // Fetch user details
+    const userResult = await sql`
+      SELECT id, name, email, phone, position, role, status, department_id
+      FROM employees
+      WHERE id = ${userId};
+    `;
+
+    if (userResult.length === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const user = userResult[0];
+
+    // Fetch department name
+    const departmentResult = await sql`
+      SELECT department_name FROM departments WHERE id = ${user.department_id};
+    `;
+    const department = departmentResult[0]?.department_name || null;
+
+    // Send response
+    return res.status(200).json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "",
+        position: user.position,
+        department,
+        role: user.role,
+        status: user.status,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching current user:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 
