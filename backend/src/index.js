@@ -18,9 +18,11 @@ app.get("/" , (req, res) => {
 import adminRouter from "./routes/adminRoute.js"
 import authRoute from "./routes/auth.js"
 import employeeRouter from "./routes/employee.js"
+import departmentRouter from "./routes/department.js"
 
 app.use("/api/auth", authRoute);
 app.use("/api/admin", verifyToken, adminRouter);
 app.use("/api/employee" , verifyToken, employeeRouter);
+app.use("/api/departments", verifyToken, departmentRouter);
 
 

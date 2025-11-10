@@ -2,44 +2,6 @@ import bcrypt from "bcrypt";
 import {sql} from "../config/db.js";
 
 
-export const createDepartment = async (req, res) => {
-  try {
-    const { department_name } = req.body;
-
-    // 1. Validate input
-    if (!department_name || department_name.trim() === "") {
-      return res.status(400).json({ error: "Department name is required" });
-    }
-
-    // 2. Check if department already exists
-    const existing = await sql`
-      SELECT * FROM departments WHERE department_name = ${department_name}
-    `;
-
-    if (existing.length > 0) {
-      return res.status(400).json({ error: "Department already exists" });
-    }
-
-    // 3. Insert new department
-    const result = await sql`
-      INSERT INTO departments (department_name)
-      VALUES (${department_name})
-      RETURNING id, department_name;
-    `;
-
-    // 4. Respond with success
-    return res.status(201).json({
-      message: "Department created successfully",
-      department: result[0],
-    });
-
-  } catch (error) {
-    console.error("Error creating department:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-
 export const createEmployee = async (req, res) => {
   try {
     const {
