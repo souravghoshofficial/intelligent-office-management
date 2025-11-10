@@ -135,6 +135,7 @@ export const getMyLeaves = async (req, res) => {
         leave_type, 
         start_date, 
         end_date, 
+        status,
         created_at
       FROM leaves
       WHERE employee_id = ${employeeId}

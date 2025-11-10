@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loadData } from "./store/auth";
 
 function Home() {
   const navigate = useNavigate();
+  const dispatch=useDispatch()
   const [loginInfo, setLoginInfo] = useState({
     email: "",
     password: "",
@@ -36,6 +39,7 @@ function Home() {
     );
     if (response.status === 200) {
       navigate("/dashboard");
+      dispatch(loadData(response.data.user))
     } else {
       alert("Invalid Credentials");
       return;

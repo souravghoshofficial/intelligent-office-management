@@ -15,6 +15,7 @@ import CreateEmployee from "./components/Employee/CreateEmployee.jsx";
 import ApplyLeave from "./components/leave/ApplyLeave.jsx";
 import ApplicationForm from "./components/leave/ApplicationForm.jsx";
 import UpdatePassword from "./components/passwordUpdation/UpdatePassword.jsx";
+import store from "./components/store/store.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +31,8 @@ const router = createBrowserRouter(
 );
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </StrictMode>
 );
