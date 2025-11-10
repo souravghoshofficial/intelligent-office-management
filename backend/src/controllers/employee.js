@@ -59,18 +59,10 @@ export const changePassword = async (req, res) => {
 
 export const applyLeave = async (req, res) => {
   try {
-    const { employee_id, leave_type, description, start_date, end_date } = req.body;
-    const userId = req.user?.id;
+    const {leave_type, description, start_date, end_date } = req.body;
+    const employee_id = req.user?.id;
 
-
-    // 1. Identity check: Employee can only apply for their own leave
-    if (userId !== employee_id) {
-      return res
-        .status(403)
-        .json({ error: "You can only apply leave for your own account." });
-    }
-
-    // 2. Input validation
+    // 1. Input validation
     if (
       !leave_type?.trim() ||
       !start_date ||
@@ -81,7 +73,7 @@ export const applyLeave = async (req, res) => {
       });
     }
 
-    // 3. Validate date range
+    // 2. Validate date range
     const start = new Date(start_date);
     const end = new Date(end_date);
     if (isNaN(start) || isNaN(end) || end < start) {
@@ -90,7 +82,7 @@ export const applyLeave = async (req, res) => {
       });
     }
 
-    // 4. Optional: Check for overlapping leaves
+    // 3. Optional: Check for overlapping leaves
     const overlapping = await sql`
       SELECT id FROM leaves
       WHERE employee_id = ${employee_id}
@@ -106,7 +98,7 @@ export const applyLeave = async (req, res) => {
       });
     }
 
-    // 5. Insert leave record
+    // 4. Insert leave record
     const result = await sql`
       INSERT INTO leaves (
         employee_id, leave_type, description, start_date, end_date, status
@@ -120,7 +112,7 @@ export const applyLeave = async (req, res) => {
 
     const newLeave = result[0];
 
-    // 7. Success
+    // 5. Success
     return res.status(201).json({
       message: "Leave applied successfully. Awaiting approval.",
       leave: newLeave,
