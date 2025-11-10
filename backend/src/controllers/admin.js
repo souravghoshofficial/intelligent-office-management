@@ -85,6 +85,40 @@ export const createEmployee = async (req, res) => {
 };
 
 
+export const getAllEmployees = async (req, res) => {
+  try {
+    // Fetch all employees with department name
+    const employees = await sql`
+      SELECT 
+        e.id,
+        e.name,
+        e.email,
+        e.phone,
+        e.position,
+        e.role,
+        e.status,
+        e.created_at,
+        d.department_name
+      FROM employees e
+      LEFT JOIN departments d
+      ON e.department_id = d.id
+      ORDER BY e.id ASC;
+    `;
+
+    return res.status(200).json({
+      success: true,
+      employees,
+    });
+  } catch (err) {
+    console.error("Error fetching employees:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
 
 export const getAllLeaves = async (req, res) => {
   try {
