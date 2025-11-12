@@ -13,15 +13,51 @@ function Dashboard() {
   const user = useSelector((state) => state.authInfo);
   const [current, setCurrent] = useState("Home");
   const [showSidebar, setShowSidebar] = useState(false);
+  const [adminStats, setAdminStats] = useState();
+  const [empStats, setEmpStats] = useState();
   const [leaves, setLeaves] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const employees = [
-    { id: "EMP123", name: "Subhra Shaw", email: "shawsubhra073@gmail.com" },
-    { id: "EMP124", name: "Sourav Ghosh", email: "souravghose213@gmail.com" },
-    { id: "EMP125", name: "Tapobrata Sardar", email: "tapobrata123@gmail.com" },
-  ];
+  const [employees, setEmployees] = useState([]);
 
   const toggleSidebar = () => setShowSidebar(!showSidebar);
+
+  useEffect(() => {
+    const fetchEmployeesAndDepartments = async () => {
+      try {
+        setIsLoading(true);
+
+        if (user.role === "admin") {
+          const response = await axios.get(
+            "http://localhost:5000/api/admin/dashboard/stats",
+            { withCredentials: true }
+          );
+
+          if (response.status === 200 && response.data) {
+            setAdminStats(response.data.stats);
+          }
+        } else {
+          const response = await axios.get(
+            "http://localhost:5000/api/departments",
+            { withCredentials: true }
+          );
+
+          if (response.status === 200 && response.data) {
+            console.log(response.data);
+            const empDept = response.data.departments.find(
+              (dept) => dept.department_name === user.department
+            );
+            setEmpStats(empDept || {});
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching employee/department data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user?.role) fetchEmployeesAndDepartments();
+  }, [user]);
 
   useEffect(() => {
     const fetchLeaves = async () => {
@@ -39,8 +75,6 @@ function Dashboard() {
           );
         }
         if (response.status === 200) {
-          console.log(response.data.leaves);
-          
           setLeaves(response.data.leaves || []);
         }
       } catch (error) {
@@ -52,6 +86,36 @@ function Dashboard() {
     if (user?.role) fetchLeaves();
   }, [user]);
 
+  useEffect(() => {
+  const fetchAllEmployees = async () => {
+    try {
+      // Only admins should fetch all employees
+      if (user?.role !== "admin") return;
+
+      setIsLoading(true);
+      const response = await axios.get(
+        "http://localhost:5000/api/admin/employees",
+        { withCredentials: true }
+      );
+
+      
+      if (response.status === 200 && response.data?.employees) {
+        console.log(response.data);
+        setEmployees(response.data.employees);
+      }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Only run when user is set and is admin
+  if (user?.role === "admin") {
+    fetchAllEmployees();
+  }
+}, [user?.role]);
+
   const renderContent = () => {
     switch (current) {
       case "Home":
@@ -61,38 +125,73 @@ function Dashboard() {
               🏠 Dashboard Overview
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-md hover:scale-[1.03] transition cursor-pointer">
-                <h3 className="text-lg font-semibold">Total Employees</h3>
-                <p className="text-3xl font-bold">10</p>
-              </div>
-              <div className="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-md hover:scale-[1.03] transition cursor-pointer">
-                <h3 className="text-lg font-semibold">Departments</h3>
-                <p className="text-3xl font-bold">2</p>
-              </div>
+              {user.role === "admin" ? (
+                <>
+                  <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-md hover:scale-[1.03] transition cursor-pointer">
+                    <h3 className="text-lg font-semibold">Total Employees</h3>
+                    <p className="text-3xl font-bold">
+                      {adminStats?.total_employee ?? 0}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-md hover:scale-[1.03] transition cursor-pointer">
+                    <h3 className="text-lg font-semibold">Departments</h3>
+                    <p className="text-3xl font-bold">
+                      {adminStats?.total_department ?? 0}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-md hover:scale-[1.03] transition cursor-pointer">
+                    <h3 className="text-lg font-semibold">Total Employees</h3>
+                    <p className="text-3xl font-bold">
+                      {empStats?.employee_count ?? 0}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-md hover:scale-[1.03] transition cursor-pointer">
+                    <h3 className="text-lg font-semibold">Department</h3>
+                    <p className="text-3xl font-bold">
+                      {empStats?.department_name ?? "N/A"}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-3">
-                🗓 Leave Summary
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-blue-500">
-                  <p className="text-gray-600">Leave Applied</p>
-                  <h3 className="text-2xl font-bold">12</h3>
-                </div>
-                <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-green-500">
-                  <p className="text-gray-600">Leave Approved</p>
-                  <h3 className="text-2xl font-bold">8</h3>
-                </div>
-                <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-yellow-500">
-                  <p className="text-gray-600">Leave Pending</p>
-                  <h3 className="text-2xl font-bold">3</h3>
-                </div>
-                <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-red-500">
-                  <p className="text-gray-600">Leave Rejected</p>
-                  <h3 className="text-2xl font-bold">1</h3>
+            {user?.role === "admin" && adminStats && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                  🗓 Leave Summary
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-blue-500">
+                    <p className="text-gray-600">Leave Applied</p>
+                    <h3 className="text-2xl font-bold">
+                      {adminStats.total_leaves}
+                    </h3>
+                  </div>
+                  <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-green-500">
+                    <p className="text-gray-600">Leave Approved</p>
+                    <h3 className="text-2xl font-bold">
+                      {adminStats.total_approved_leaves}
+                    </h3>
+                  </div>
+                  <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-yellow-500">
+                    <p className="text-gray-600">Leave Pending</p>
+                    <h3 className="text-2xl font-bold">
+                      {adminStats.total_pending_leaves}
+                    </h3>
+                  </div>
+                  <div className="p-4 rounded-lg bg-white shadow-md border-l-4 border-red-500">
+                    <p className="text-gray-600">Leave Rejected</p>
+                    <h3 className="text-2xl font-bold">
+                      {adminStats.total_rejected_leaves}
+                    </h3>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         );
 
@@ -115,9 +214,10 @@ function Dashboard() {
                 <thead className="bg-blue-600 text-white">
                   <tr>
                     <th className="p-3 text-center">#</th>
-                    <th className="p-3 text-center">Employee ID</th>
                     <th className="p-3 text-center">Employee Name</th>
-                    <th className="p-3 text-center">Email</th>
+                    <th className="p-3 text-center">Employee Email</th>
+                    <th className="p-3 text-center">Department</th>
+                    <th className="p-3 text-center">Position</th>
                     <th className="p-3 text-center">Action</th>
                   </tr>
                 </thead>
@@ -129,10 +229,11 @@ function Dashboard() {
                     >
                       <td className="p-3 text-center">{idx + 1}</td>
                       <td className="p-3 text-center font-semibold text-gray-700">
-                        {employee.id}
+                        {employee.name}
                       </td>
-                      <td className="p-3 text-center">{employee.name}</td>
                       <td className="p-3 text-center">{employee.email}</td>
+                      <td className="p-3 text-center">{employee.department_name}</td>
+                      <td className="p-3 text-center">{employee.position}</td>
                       <td className="p-3 text-center">
                         <button className="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-100 transition">
                           <MdDelete size={20} />
@@ -214,7 +315,7 @@ function Dashboard() {
                       >
                         {leave.status}
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <button
                           className="bg-blue-600 text-white px-4 py-1 rounded-md shadow-md hover:bg-blue-700 transition"
@@ -273,19 +374,13 @@ function Dashboard() {
               <div className="space-y-4 text-gray-800">
                 <div className="flex flex-col sm:flex-row justify-between border-b pb-2">
                   <span className="font-semibold text-gray-600">
-                    Employee ID:
-                  </span>
-                  <span className="text-gray-900">{employees[0].id}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row justify-between border-b pb-2">
-                  <span className="font-semibold text-gray-600">
                     Employee Name:
                   </span>
-                  <span className="text-gray-900">{employees[0].name}</span>
+                  <span className="text-gray-900">{user.name}</span>
                 </div>
                 <div className="flex flex-col sm:flex-row justify-between border-b pb-2">
                   <span className="font-semibold text-gray-600">Email:</span>
-                  <span className="text-gray-900">{employees[0].email}</span>
+                  <span className="text-gray-900">{user.email}</span>
                 </div>
               </div>
               <div className="text-center mt-6">

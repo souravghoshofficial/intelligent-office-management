@@ -90,15 +90,15 @@ export const getAllEmployees = async (req, res) => {
     // Fetch all employees with department name
     const employees = await sql`
       SELECT 
-        e.id,
-        e.name,
-        e.email,
-        e.phone,
-        e.position,
-        e.role,
-        e.status,
-        e.created_at,
-        d.department_name
+        e.id id,
+        e.name name,
+        e.email email,
+        e.phone phone,
+        e.position position,
+        e.role role,
+        e.status status,
+        e.created_at created_at,
+        d.department_name department_name
       FROM employees e
       LEFT JOIN departments d
       ON e.department_id = d.id
