@@ -339,20 +339,27 @@ function Dashboard() {
                       </td>
                       <td
                         className={`p-3 text-center font-semibold ${
-                          leave.status === "Approved"
+                          leave.status.toLowerCase() === "approved"
                             ? "text-green-600"
-                            : leave.status === "pending"
+                            : leave.status.toLowerCase() === "pending"
                             ? "text-yellow-600"
                             : "text-red-600"
                         }`}
                       >
-                        {leave.status}
+                        {leave.status.charAt(0).toUpperCase() +
+                          leave.status.slice(1)}
                       </td>
 
                       <td className="p-3 text-center">
                         <button
                           className="bg-blue-600 text-white px-4 py-1 rounded-md shadow-md hover:bg-blue-700 transition"
-                          onClick={() => navigate("/applicationForm")}
+                          onClick={() =>
+                            navigate("/applicationForm", {
+                              state: {
+                                leave_id: leave.id,
+                              },
+                            })
+                          }
                         >
                           View
                         </button>
@@ -374,9 +381,9 @@ function Dashboard() {
                     </h3>
                     <span
                       className={`text-sm font-semibold ${
-                        leave.status === "Approved"
+                        leave.status === "approved"
                           ? "text-green-600"
-                          : leave.status === "Pending"
+                          : leave.status === "pending"
                           ? "text-yellow-600"
                           : "text-red-600"
                       }`}

@@ -8,6 +8,7 @@ import {
   approveLeave,
   rejectLeave,
   toggleEmployeeStatus,
+  getLeaveById,
 } from "../controllers/admin.js";
 import { getStats } from "../controllers/stats.js";
 
@@ -30,9 +31,6 @@ router.route("/dashboard/stats").get(authorizeRoles("admin"), getStats);
 router
   .route("/employee/:id/toggle-status")
   .put(authorizeRoles("admin"), toggleEmployeeStatus);
-  router
-  .route("/leaves/:leave_id")
-  .get(authorizeRoles("admin"), getLeaveById);
-
+router.route("/leaves/:leave_id").get(authorizeRoles("admin"), getLeaveById);
 
 export default router;
