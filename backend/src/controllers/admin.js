@@ -256,6 +256,41 @@ export const rejectLeave = async (req, res) => {
 };
 
 
+export const toggleEmployeeStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check employee exists
+    const employee = await sql`
+      SELECT id, status FROM employees WHERE id = ${id}
+    `;
+
+    if (employee.length === 0) {
+      return res.status(404).json({ error: "Employee not found." });
+    }
+
+    const currentStatus = employee[0].status;
+    const newStatus = !currentStatus;
+
+    // Update status
+    const updated = await sql`
+      UPDATE employees
+      SET status = ${newStatus}
+      WHERE id = ${id}
+      RETURNING id, name, email, status;
+    `;
+
+    return res.status(200).json({
+      message: `Employee status updated to ${newStatus ? "Active" : "Inactive"}`,
+      employee: updated[0],
+    });
+
+  } catch (err) {
+    console.error("Error toggling employee status:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 
 
