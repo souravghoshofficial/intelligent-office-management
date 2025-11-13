@@ -164,6 +164,47 @@ export const getAllLeaves = async (req, res) => {
 };
 
 
+export const getLeaveById = async (req, res) => {
+  try {
+    const { leave_id } = req.params;
+
+    if (!leave_id) {
+      return res.status(400).json({ error: "Leave ID is required." });
+    }
+
+    const leave = await sql`
+      SELECT 
+        l.id,
+        l.leave_type,
+        l.description,
+        l.start_date,
+        l.end_date,
+        l.status,
+        l.created_at,
+        e.name AS employee_name,
+        e.email AS employee_email,
+        e.id AS employee_id
+      FROM leaves l
+      JOIN employees e ON l.employee_id = e.id
+      WHERE l.id = ${leave_id}
+      LIMIT 1;
+    `;
+
+    if (leave.length === 0) {
+      return res.status(404).json({ error: "Leave record not found." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      leave: leave[0],
+    });
+  } catch (err) {
+    console.error("Error fetching leave by ID:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 export const approveLeave = async (req, res) => {
   try {
     const { leave_id } = req.params; 

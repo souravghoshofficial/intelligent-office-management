@@ -30,5 +30,9 @@ router.route("/dashboard/stats").get(authorizeRoles("admin"), getStats);
 router
   .route("/employee/:id/toggle-status")
   .put(authorizeRoles("admin"), toggleEmployeeStatus);
+  router
+  .route("/leaves/:leave_id")
+  .get(authorizeRoles("admin"), getLeaveById);
+
 
 export default router;
