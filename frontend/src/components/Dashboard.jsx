@@ -87,27 +87,51 @@ function Dashboard() {
   }, [user]);
 
   useEffect(() => {
-  const fetchAllEmployees = async () => {
+    const fetchAllEmployees = async () => {
+      try {
+        if (user?.role !== "admin") return;
+        setIsLoading(true);
+        const response = await axios.get(
+          "http://localhost:5000/api/admin/employees",
+          { withCredentials: true }
+        );
+        if (response.status === 200 && response.data?.employees) {
+          setEmployees(response.data.employees);
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user && user.role) fetchAllEmployees();
+  }, [user]); // 👈 depends on full user, not just user.role
+
+  const toggleStatus = async (id) => {
     try {
-      if (user?.role !== "admin") return;
-      setIsLoading(true);
-      const response = await axios.get(
-        "http://localhost:5000/api/admin/employees",
-        { withCredentials: true }
+      const response = await axios.put(
+        `http://localhost:5000/api/admin/employee/${id}/toggle-status`,
+        {}, // empty body
+        { withCredentials: true } // config object
       );
-      if (response.status === 200 && response.data?.employees) {
-        setEmployees(response.data.employees);
+
+      if (response.status === 200) {
+        alert("Employee Status Changed");
+        // Update UI immediately
+        setEmployees((prev) =>
+          prev.map((emp) =>
+            emp.id === id ? { ...emp, status: !emp.status } : emp
+          )
+        );
+      } else {
+        alert("Failed to change the status");
       }
     } catch (error) {
-      console.error("Error fetching employees:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error toggling employee status:", error);
+      alert("Something went wrong while changing the status.");
     }
   };
-
-  if (user && user.role) fetchAllEmployees();
-}, [user]); // 👈 depends on full user, not just user.role
-
 
   const renderContent = () => {
     switch (current) {
@@ -195,14 +219,14 @@ function Dashboard() {
               👥 Employee Management
             </h2>
             <div className="flex justify-end">
-              { user.role==="admin" &&
-              <button
-                className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition font-medium"
-                onClick={() => navigate("/createEmployee")}
-              >
-                ➕ Add Employee
-              </button>
-    }
+              {user.role === "admin" && (
+                <button
+                  className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition font-medium"
+                  onClick={() => navigate("/createEmployee")}
+                >
+                  ➕ Add Employee
+                </button>
+              )}
             </div>
             <div className="overflow-x-auto hidden md:block">
               <table className="w-full border-collapse bg-white rounded-lg shadow-md overflow-hidden">
@@ -227,12 +251,26 @@ function Dashboard() {
                         {employee.name}
                       </td>
                       <td className="p-3 text-center">{employee.email}</td>
-                      <td className="p-3 text-center">{employee.department_name}</td>
+                      <td className="p-3 text-center">
+                        {employee.department_name}
+                      </td>
                       <td className="p-3 text-center">{employee.position}</td>
                       <td className="p-3 text-center">
-                        <button className="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-100 transition">
-                          <MdDelete size={20} />
-                        </button>
+                        {employee.status ? (
+                          <button
+                            className="text-green-600 hover:text-green-800 p-2 rounded-md hover:bg-green-100 transition"
+                            onClick={() => toggleStatus(employee.id)}
+                          >
+                            Active
+                          </button>
+                        ) : (
+                          <button
+                            className="text-red-600 hover:text-red-800 p-2 rounded-md hover:bg-red-100 transition"
+                            onClick={() => toggleStatus(employee.id)}
+                          >
+                            Inactive
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
