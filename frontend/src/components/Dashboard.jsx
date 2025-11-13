@@ -89,18 +89,13 @@ function Dashboard() {
   useEffect(() => {
   const fetchAllEmployees = async () => {
     try {
-      // Only admins should fetch all employees
       if (user?.role !== "admin") return;
-
       setIsLoading(true);
       const response = await axios.get(
         "http://localhost:5000/api/admin/employees",
         { withCredentials: true }
       );
-
-      
       if (response.status === 200 && response.data?.employees) {
-        console.log(response.data);
         setEmployees(response.data.employees);
       }
     } catch (error) {
@@ -110,11 +105,9 @@ function Dashboard() {
     }
   };
 
-  // Only run when user is set and is admin
-  if (user?.role === "admin") {
-    fetchAllEmployees();
-  }
-}, [user?.role]);
+  if (user && user.role) fetchAllEmployees();
+}, [user]); // 👈 depends on full user, not just user.role
+
 
   const renderContent = () => {
     switch (current) {
@@ -202,12 +195,14 @@ function Dashboard() {
               👥 Employee Management
             </h2>
             <div className="flex justify-end">
+              { user.role==="admin" &&
               <button
                 className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition font-medium"
                 onClick={() => navigate("/createEmployee")}
               >
                 ➕ Add Employee
               </button>
+    }
             </div>
             <div className="overflow-x-auto hidden md:block">
               <table className="w-full border-collapse bg-white rounded-lg shadow-md overflow-hidden">
@@ -366,11 +361,11 @@ function Dashboard() {
 
       case "Settings":
         return (
-          <div className="flex flex-col items-center justify-center space-y-8 p-6">
+          <div className="w-full flex flex-col items-center justify-center space-y-8 p-6">
             <h2 className="text-3xl font-bold text-blue-700 flex items-center gap-2">
               ⚙️ System Settings
             </h2>
-            <div className="w-full md:w-1/2 bg-white/80 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-200 transition-all hover:shadow-2xl">
+            <div className="w-full px-2 py-2 md:w-1/2 md:p-6 bg-white/80 backdrop-blur-md shadow-lg rounded-xl border border-gray-200 transition-all hover:shadow-2xl">
               <div className="space-y-4 text-gray-800">
                 <div className="flex flex-col sm:flex-row justify-between border-b pb-2">
                   <span className="font-semibold text-gray-600">
@@ -418,7 +413,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen grid grid-cols-12 bg-gradient-to-br from-blue-100 to-blue-300">
       <button
-        className="md:hidden absolute top-4 left-4 bg-white p-2 rounded-md shadow-lg z-50"
+        className="md:hidden absolute top-4 left-1 bg-white p-2 rounded-md shadow-lg z-50 mt-12"
         onClick={toggleSidebar}
       >
         {showSidebar ? <FiX size={22} /> : <FiMenu size={22} />}

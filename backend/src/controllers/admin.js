@@ -97,7 +97,6 @@ export const getAllEmployees = async (req, res) => {
         e.position position,
         e.role role,
         e.status status,
-        e.created_at created_at,
         d.department_name department_name
       FROM employees e
       LEFT JOIN departments d

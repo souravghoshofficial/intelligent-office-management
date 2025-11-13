@@ -52,7 +52,7 @@ function CreateEmployee() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/admin/create-employee",
+        "http://localhost:5000/api/admin/employees",
         empDetail,
         { withCredentials: true }
       );
@@ -179,7 +179,7 @@ function CreateEmployee() {
               required
               className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
             >
-              <option value="">Select Department</option>
+              <option value="" disabled>Select Department</option>
               <option value="5cfcbf7a-9789-4798-832d-bb99a255ce9c">IT</option>
               <option value="999c3cf8-c945-41d1-87d4-fabfe7a32556">Marketing</option>
               <option value="d8c1cd92-6d90-4445-b838-48cb3e7d768b">Sales</option>
