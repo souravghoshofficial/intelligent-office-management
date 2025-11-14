@@ -37,7 +37,7 @@ function Dashboard() {
           }
         } else {
           const response = await axios.get(
-            "http://localhost:5000/api/departments",
+            "http://localhost:5000/api/departments/",
             { withCredentials: true }
           );
 
